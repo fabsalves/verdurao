@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verdurão Chaves (Pai e Filho)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="imprimir.css" media="print">
+
+    <style>
+        #total-geral {
+            background-color: gray;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Verdurão Chaves (Pai e Filho)</h1>
+        <div class="row mb-3">
+            <div class="col">
+                <label for="cliente" class="form-label">Nome do Cliente:</label>
+                <input type="text" class="form-control" id="cliente" placeholder="Digite o nome do cliente">
+            </div>
+            <div class="col">
+                <label for="total-geral" class="form-label">Valor da Nota:</label>
+                <input type="text" class="form-control" id="total-geral" value="R$ 0,0" readonly blocked>
+            </div>
+        </div>
+
+        <br /><hr /><br />
+
+        <div id="produtos">
+            <center>
+              <h2>Produtos</h2><br />
+            </center>
+            <!-- Itens de produto aqui -->
+        </div>
+
+        <button id="btn-adicionar" class="btn btn-success">Adicionar Produto</button>
+    </div>
+    <br />
+    <center>
+      <button id="btn-imprimir" class="btn btn-primary">Imprimir</button>
+    </center>
+
+    <script>
+        var contadorProdutos = 0;
+        
+        $(document).ready(function() {
+            // Carregar dados do Local Storage
+            carregarDadosLocalStorage();
+
+            $("#btn-adicionar").click(function() {
+                adicionarProduto();
+            });
+
+            $(document).on("click", ".btn-remover", function() {
+                $(this).closest(".produto").remove();
+                calcularTotal();
+            });
+
+            $(document).on("input", ".quantidade-kilo, .preco-kilo", function() {
+                calcularTotal();
+            });
+        });
+
+        function adicionarProduto() {
+          contadorProdutos++; // Incrementa o contador
+          var novoProduto = `
+              <div class="mb-4 produto">
+                  <div class="row">
+                      <div class="col">
+                        <label for="nome-produto" class="form-label">Item #${contadorProdutos}:</label>
+                        <input type="text" class="form-control nome-produto" placeholder="Nome do produto">
+                      </div>
+                      <div class="col">
+                          <label for="preco-kilo" class="form-label">R$/Kg:</label>
+                          <input type="number" class="form-control preco-kilo" placeholder="Preço por Kilo">
+                      </div>
+                      <div class="col">
+                          <label for="quantidade-kilo" class="form-label">Qtd/Kg:</label>
+                          <input type="number" class="form-control quantidade-kilo" placeholder="Quantidade em Kilos">
+                      </div>
+                      <div class="col">
+                          <label for="total-item" class="form-label">Total Item:</label>
+                          <input type="text" placeholder="R$ 0,0" class="form-control total-item" readonly blocked>
+                      </div>
+                      <div class="col">
+                          <button class="btn btn-danger btn-remover">Remover</button>
+                      </div>
+                  </div>
+              </div>
+          `;
+          $("#produtos").append(novoProduto);
+        }
+
+
+
+        function calcularTotal() {
+            $(".produto").each(function() {
+                var preco = parseFloat($(this).find(".preco-kilo").val());
+                var quantidade = parseFloat($(this).find(".quantidade-kilo").val());
+                var totalItem = isNaN(preco) || isNaN(quantidade) ? 0 : preco * quantidade;
+                $(this).find(".total-item").val(totalItem.toFixed(2));
+            });
+
+            var totalGeral = 0;
+            $(".total-item").each(function() {
+                totalGeral += parseFloat($(this).val());
+            });
+            $("#total-geral").val("R$" + totalGeral.toFixed(2));
+        }
+
+        // Carregar dados do Local Storage
+        function carregarDadosLocalStorage() {
+            var cliente = localStorage.getItem("cliente");
+            var produtos = JSON.parse(localStorage.getItem("produtos"));
+
+            if (cliente) {
+                $("#cliente").val(cliente);
+            }
+
+            if (produtos) {
+                for (var i = 0; i < produtos.length; i++) {
+                    adicionarProduto();
+                    $(".nome-produto:last").val(produtos[i].nome);
+                    $(".preco-kilo:last").val(produtos[i].preco);
+                    $(".quantidade-kilo:last").val(produtos[i].quantidade);
+                }
+            }
+
+            calcularTotal();
+        }
+
+        // Salvar dados no Local Storage
+        function salvarDadosLocalStorage() {
+            var cliente = $("#cliente").val();
+            var produtos = [];
+
+            $(".produto").each(function() {
+                var nome = $(this).find(".nome-produto").val();
+                var preco = $(this).find(".preco-kilo").val();
+                var quantidade = $(this).find(".quantidade-kilo").val();
+                produtos.push({ nome: nome, preco: preco, quantidade: quantidade });
+            });
+
+            localStorage.setItem("cliente", cliente);
+            localStorage.setItem("produtos", JSON.stringify(produtos));
+        }
+
+        $("#btn-imprimir").click(function() {
+            $('.btn').hide();
+            window.print();
+            $('.btn').show();
+        });
+
+        // Chamar função de salvar quando a página for fechada ou atualizada
+        $(window).on("beforeunload", function() {
+            salvarDadosLocalStorage();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+/* imprimir.css */
+
+/* Estilos gerais para impressão */
+body * {
+    visibility: visible;
+}
+#produtos, #produtos * {
+    visibility: visible;
+}
+/* Estilos específicos para o nome do cliente */
+#cliente {
+    font-weight: bold;
+}
+
+.btn {
+    visibility: hidden;
+}
+
+input {
+    border-color: black;
+    color: black;
+}
