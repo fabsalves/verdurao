@@ -38,11 +38,14 @@
             <!-- Itens de produto aqui -->
         </div>
 
-        <button id="btn-adicionar" class="btn btn-success">Adicionar Produto</button>
+        <center>
+          <button id="btn-adicionar" class="btn btn-success">Adicionar Produto</button>
+        </center>
     </div>
     <br />
     <center>
       <button id="btn-imprimir" class="btn btn-primary">Imprimir</button>
+      <button id="btn-resetar" class="btn btn-danger">Resetar</button>
     </center>
 
     <script>
@@ -71,23 +74,24 @@
           var novoProduto = `
               <div class="mb-4 produto">
                   <div class="row">
-                      <div class="col">
-                        <label for="nome-produto" class="form-label">Item #${contadorProdutos}:</label>
-                        <input type="text" class="form-control nome-produto" placeholder="Nome do produto">
+                      <div class="col-md-3">
+                          <label for="nome-produto" class="form-label">Item #${contadorProdutos}:</label>
+                          <input type="text" class="form-control nome-produto" placeholder="Nome do produto">
                       </div>
-                      <div class="col">
+                      <div class="col-md-2">
                           <label for="preco-kilo" class="form-label">R$/Kg:</label>
                           <input type="number" class="form-control preco-kilo" placeholder="Preço por Kilo">
                       </div>
-                      <div class="col">
+                      <div class="col-md-2">
                           <label for="quantidade-kilo" class="form-label">Qtd/Kg:</label>
                           <input type="number" class="form-control quantidade-kilo" placeholder="Quantidade em Kilos">
                       </div>
-                      <div class="col">
+                      <div class="col-md-3">
                           <label for="total-item" class="form-label">Total Item:</label>
                           <input type="text" placeholder="R$ 0,0" class="form-control total-item" readonly blocked>
                       </div>
-                      <div class="col">
+                      <div class="col-md-2">
+                          <br />
                           <button class="btn btn-danger btn-remover">Remover</button>
                       </div>
                   </div>
@@ -95,8 +99,6 @@
           `;
           $("#produtos").append(novoProduto);
         }
-
-
 
         function calcularTotal() {
             $(".produto").each(function() {
@@ -156,10 +158,42 @@
             $('.btn').show();
         });
 
+        $("#btn-resetar").click(function() {
+            resetarCampos();
+        });
         // Chamar função de salvar quando a página for fechada ou atualizada
         $(window).on("beforeunload", function() {
             salvarDadosLocalStorage();
         });
+
+        function resetarCampos() {
+          // Limpar campo de cliente
+          $("#cliente").val("");
+
+          // Limpar campos de produtos
+          $(".nome-produto").val("");
+          $(".preco-kilo").val("");
+          $(".quantidade-kilo").val("");
+          $(".total-item").val("");
+
+          // Resetar contador de produtos
+          contadorProdutos = 0;
+
+          // Recalcular total após a limpeza
+          calcularTotal();
+
+          // Limpar dados do Local Storage
+          localStorage.removeItem("cliente");
+          localStorage.removeItem("produtos");
+
+          var products = `
+            <center>
+              <h2>Produtos</h2><br />
+            </center>
+          `
+
+          $("#produtos").html(products);
+        }
     </script>
 </body>
 </html>
